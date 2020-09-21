@@ -9,18 +9,14 @@ namespace Habrador_Computational_Geometry
     //Assumes there are no degeneracies (each vertex of one polygon does not lie on an edge of the other polygon)
     public static class GreinerHormann
     {
-        public static List<List<MyVector2>> ClipPolygons(List<MyVector2> polyVector2, List<MyVector2> clipPolyVector2, BooleanOperation booleanOperation)
+        public static ClipResult ClipPolygons(List<MyVector2> polyVector2, List<MyVector2> clipPolyVector2, BooleanOperation booleanOperation)
         {
             List<List<MyVector2>> finalPoly = new List<List<MyVector2>>();
-
-
+            ClipResult result = new ClipResult();
 
             //Step 0. Create the data structure needed
             List<ClipVertex> poly = InitDataStructure(polyVector2);
-
             List<ClipVertex> clipPoly = InitDataStructure(clipPolyVector2);
-
-
 
             //Step 1. Find intersection points
             //Need to test if we have found an intersection point, 
@@ -88,6 +84,7 @@ namespace Habrador_Computational_Geometry
             //If the polygons are intersecting
             if (hasFoundIntersection)
             {
+                result.Intersection = IntersectionType.Intersecting;
                 //Step 2. Trace each polygon and mark entry and exit points to the other polygon's interior
                 MarkEntryExit(poly, clipPolyVector2);
 
@@ -163,18 +160,21 @@ namespace Habrador_Computational_Geometry
                 if (IsPolygonInsidePolygon(polyVector2, clipPolyVector2))
                 {
                     Debug.Log("Poly is inside clip poly");
+                    result.Intersection = IntersectionType.PolygonInsideClip;
                 }
                 else if (IsPolygonInsidePolygon(clipPolyVector2, polyVector2))
                 {
                     Debug.Log("Clip poly is inside poly");
+                    result.Intersection = IntersectionType.ClipInsidePolygon;
                 }
                 else
                 {
                     Debug.Log("Polygons are not intersecting");
+                    result.Intersection = IntersectionType.NotIntersecting;
                 }
             }
-
-            return finalPoly;
+            result.FinalPolygon = finalPoly;
+            return result;
         }
 
 
